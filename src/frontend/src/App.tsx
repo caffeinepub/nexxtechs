@@ -9,6 +9,7 @@ import {
 import { Footer } from "./components/Footer";
 import { Navbar } from "./components/Navbar";
 import { AdminPage } from "./pages/AdminPage";
+import { ContactPage } from "./pages/ContactPage";
 import { CourseDetailPage } from "./pages/CourseDetailPage";
 import { CoursesPage } from "./pages/CoursesPage";
 import { DashboardPage } from "./pages/DashboardPage";
@@ -70,6 +71,12 @@ const adminRoute = createRoute({
   component: AdminPage,
 });
 
+const contactRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/contact",
+  component: ContactPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   coursesRoute,
@@ -77,6 +84,7 @@ const routeTree = rootRoute.addChildren([
   dashboardRoute,
   instructorsRoute,
   adminRoute,
+  contactRoute,
 ]);
 
 const router = createRouter({ routeTree });

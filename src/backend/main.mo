@@ -3,6 +3,7 @@ import List "mo:core/List";
 import Text "mo:core/Text";
 import Array "mo:core/Array";
 import Order "mo:core/Order";
+import Time "mo:core/Time";
 
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
@@ -386,5 +387,60 @@ actor {
       case (null) { [] };
       case (?enrolled) { enrolled.toArray() };
     };
+  };
+
+  public type Enquiry = {
+    id : Nat;
+    name : Text;
+    email : Text;
+    phone : Text;
+    courseInterested : Text;
+    message : Text;
+    submittedAt : Int;
+  };
+
+  var nextEnquiryId = 1;
+  var enquiries = List.empty<Enquiry>();
+
+  public shared ({ caller }) func submitEnquiry(
+    name : Text,
+    email : Text,
+    phone : Text,
+    courseInterested : Text,
+    message : Text,
+  ) : async Nat {
+    let enquiryId = nextEnquiryId;
+    nextEnquiryId += 1;
+
+    let enquiry : Enquiry = {
+      id = enquiryId;
+      name;
+      email;
+      phone;
+      courseInterested;
+      message;
+      submittedAt = Time.now();
+    };
+
+    enquiries.add(enquiry);
+    enquiryId;
+  };
+
+  public query ({ caller }) func getAllEnquiries() : async [Enquiry] {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can view all enquiries");
+    };
+    enquiries.toArray();
+  };
+
+  public shared ({ caller }) func deleteEnquiry(id : Nat) : async () {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can delete enquiries");
+    };
+
+    let filteredEnquiries = enquiries.filter(
+      func(e) { e.id != id }
+    );
+    enquiries := filteredEnquiries;
   };
 };

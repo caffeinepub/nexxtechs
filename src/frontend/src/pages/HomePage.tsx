@@ -8,6 +8,7 @@ import {
   BookOpen,
   ChevronRight,
   Globe,
+  MapPin,
   Shield,
   Star,
   TrendingUp,
@@ -15,9 +16,11 @@ import {
   Zap,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { SiWhatsapp } from "react-icons/si";
 import { toast } from "sonner";
 import type { Course, Instructor } from "../backend.d";
 import { CourseCard } from "../components/CourseCard";
+import { EnquiryForm } from "../components/EnquiryForm";
 import {
   categoryIcons,
   sampleCourses,
@@ -424,6 +427,120 @@ export function HomePage() {
               </motion.div>
             ))}
           </motion.div>
+        </div>
+      </section>
+
+      {/* Contact / Enquiry Section */}
+      <section className="py-20 bg-circuit">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12"
+          >
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Get in <span className="gradient-text">Touch</span>
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Interested in a course? Drop us an enquiry and we'll help you find
+              the right program for your goals.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-5xl mx-auto">
+            {/* Contact Info sidebar */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="lg:col-span-2 space-y-4"
+            >
+              {/* Address */}
+              <div className="card-glow rounded-2xl p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <h3 className="font-semibold text-sm text-foreground">
+                    Our Office
+                  </h3>
+                </div>
+                <address className="not-italic text-sm text-muted-foreground leading-relaxed">
+                  B 54, First Floor, New Krishna Park,
+                  <br />
+                  Vikaspuri, Janakpuri,
+                  <br />
+                  Near Janakpuri West Metro Station
+                  <br />
+                  <span className="text-primary font-medium">
+                    Pin Code: 110058
+                  </span>
+                </address>
+              </div>
+
+              {/* WhatsApp */}
+              <div className="card-glow rounded-2xl p-5 space-y-2">
+                <h3 className="font-semibold text-sm text-foreground mb-3">
+                  WhatsApp Us
+                </h3>
+                <a
+                  href="https://wa.me/919217179762"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-green-400 transition-colors"
+                >
+                  <SiWhatsapp className="h-4 w-4 text-green-500 flex-shrink-0" />
+                  +91 9217179762
+                </a>
+                <a
+                  href="https://wa.me/919217179764"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-green-400 transition-colors"
+                >
+                  <SiWhatsapp className="h-4 w-4 text-green-500 flex-shrink-0" />
+                  +91 9217179764
+                </a>
+              </div>
+
+              {/* Collaboration */}
+              <div className="card-glow rounded-2xl p-5">
+                <p className="text-xs text-muted-foreground">
+                  In collaboration with{" "}
+                  <span className="text-primary font-semibold">
+                    CyberHooks Institute
+                  </span>
+                </p>
+              </div>
+
+              <Link to="/contact">
+                <Button
+                  variant="outline"
+                  className="w-full gap-2 border-border hover:border-primary/50"
+                >
+                  View Full Contact Page
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </motion.div>
+
+            {/* Form */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="lg:col-span-3"
+            >
+              <div className="card-glow rounded-2xl p-6">
+                <h3 className="font-display text-lg font-bold text-foreground mb-4">
+                  Quick Enquiry
+                </h3>
+                <EnquiryForm compact />
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 

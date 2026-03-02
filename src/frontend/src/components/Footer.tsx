@@ -20,7 +20,7 @@ export function Footer() {
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <img
-                src="/assets/uploads/nexxtexh-1-1.jpeg"
+                src="/assets/generated/nexxtechs-logo.jpeg"
                 alt="NexXTechs"
                 className="h-9 object-contain"
               />

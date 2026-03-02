@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   Course,
   CourseModule,
+  Enquiry,
   Instructor,
   Testimonial,
   UserProfile,
@@ -343,6 +344,60 @@ export function useDeleteInstructor() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["instructors"] });
+    },
+  });
+}
+
+// ── Enquiry hooks ──────────────────────────────────────────────────────────
+
+export function useAllEnquiries() {
+  const { actor, isFetching } = useActor();
+  return useQuery<Enquiry[]>({
+    queryKey: ["enquiries"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllEnquiries();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useSubmitEnquiry() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: {
+      name: string;
+      email: string;
+      phone: string;
+      courseInterested: string;
+      message: string;
+    }) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.submitEnquiry(
+        params.name,
+        params.email,
+        params.phone,
+        params.courseInterested,
+        params.message,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["enquiries"] });
+    },
+  });
+}
+
+export function useDeleteEnquiry() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error("Not authenticated");
+      return actor.deleteEnquiry(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["enquiries"] });
     },
   });
 }

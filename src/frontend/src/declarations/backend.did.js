@@ -30,6 +30,15 @@ export const Course = IDL.Record({
   'price' : IDL.Float64,
   'modules' : IDL.Vec(CourseModule),
 });
+export const Enquiry = IDL.Record({
+  'id' : IDL.Nat,
+  'name' : IDL.Text,
+  'submittedAt' : IDL.Int,
+  'email' : IDL.Text,
+  'message' : IDL.Text,
+  'phone' : IDL.Text,
+  'courseInterested' : IDL.Text,
+});
 export const Instructor = IDL.Record({
   'id' : IDL.Nat,
   'bio' : IDL.Text,
@@ -70,9 +79,11 @@ export const idlService = IDL.Service({
       [],
     ),
   'deleteCourse' : IDL.Func([IDL.Nat], [], []),
+  'deleteEnquiry' : IDL.Func([IDL.Nat], [], []),
   'deleteInstructor' : IDL.Func([IDL.Nat], [], []),
   'enrollInCourse' : IDL.Func([IDL.Nat], [], []),
   'getAllCourses' : IDL.Func([], [IDL.Vec(Course)], ['query']),
+  'getAllEnquiries' : IDL.Func([], [IDL.Vec(Enquiry)], ['query']),
   'getAllInstructors' : IDL.Func([], [IDL.Vec(Instructor)], ['query']),
   'getAllTestimonials' : IDL.Func([], [IDL.Vec(Testimonial)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
@@ -89,6 +100,11 @@ export const idlService = IDL.Service({
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'markModuleCompleted' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'submitEnquiry' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+      [IDL.Nat],
+      [],
+    ),
   'updateCourse' : IDL.Func(
       [
         IDL.Nat,
@@ -137,6 +153,15 @@ export const idlFactory = ({ IDL }) => {
     'price' : IDL.Float64,
     'modules' : IDL.Vec(CourseModule),
   });
+  const Enquiry = IDL.Record({
+    'id' : IDL.Nat,
+    'name' : IDL.Text,
+    'submittedAt' : IDL.Int,
+    'email' : IDL.Text,
+    'message' : IDL.Text,
+    'phone' : IDL.Text,
+    'courseInterested' : IDL.Text,
+  });
   const Instructor = IDL.Record({
     'id' : IDL.Nat,
     'bio' : IDL.Text,
@@ -177,9 +202,11 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'deleteCourse' : IDL.Func([IDL.Nat], [], []),
+    'deleteEnquiry' : IDL.Func([IDL.Nat], [], []),
     'deleteInstructor' : IDL.Func([IDL.Nat], [], []),
     'enrollInCourse' : IDL.Func([IDL.Nat], [], []),
     'getAllCourses' : IDL.Func([], [IDL.Vec(Course)], ['query']),
+    'getAllEnquiries' : IDL.Func([], [IDL.Vec(Enquiry)], ['query']),
     'getAllInstructors' : IDL.Func([], [IDL.Vec(Instructor)], ['query']),
     'getAllTestimonials' : IDL.Func([], [IDL.Vec(Testimonial)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
@@ -196,6 +223,11 @@ export const idlFactory = ({ IDL }) => {
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'markModuleCompleted' : IDL.Func([IDL.Nat, IDL.Nat], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'submitEnquiry' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [IDL.Nat],
+        [],
+      ),
     'updateCourse' : IDL.Func(
         [
           IDL.Nat,

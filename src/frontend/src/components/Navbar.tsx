@@ -14,6 +14,7 @@ import {
   Loader2,
   LogIn,
   LogOut,
+  Mail,
   Menu,
   Settings,
   Users,
@@ -29,6 +30,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/courses", label: "Courses" },
   { href: "/instructors", label: "Instructors" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function Navbar() {
@@ -59,7 +61,7 @@ export function Navbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <img
-              src="/assets/uploads/nexxtexh-1-1.jpeg"
+              src="/assets/generated/nexxtechs-logo.jpeg"
               alt="NexXTechs"
               className="h-10 object-contain"
             />
@@ -203,6 +205,7 @@ export function Navbar() {
                     {link.label === "Dashboard" && (
                       <LayoutDashboard className="h-4 w-4" />
                     )}
+                    {link.label === "Contact" && <Mail className="h-4 w-4" />}
                     {link.label === "Admin" && <Settings className="h-4 w-4" />}
                     {link.label}
                   </Link>

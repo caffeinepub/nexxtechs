@@ -27,6 +27,15 @@ export interface CourseModule {
   'title' : string,
   'description' : string,
 }
+export interface Enquiry {
+  'id' : bigint,
+  'name' : string,
+  'submittedAt' : bigint,
+  'email' : string,
+  'message' : string,
+  'phone' : string,
+  'courseInterested' : string,
+}
 export interface Instructor {
   'id' : bigint,
   'bio' : string,
@@ -67,9 +76,11 @@ export interface _SERVICE {
     bigint
   >,
   'deleteCourse' : ActorMethod<[bigint], undefined>,
+  'deleteEnquiry' : ActorMethod<[bigint], undefined>,
   'deleteInstructor' : ActorMethod<[bigint], undefined>,
   'enrollInCourse' : ActorMethod<[bigint], undefined>,
   'getAllCourses' : ActorMethod<[], Array<Course>>,
+  'getAllEnquiries' : ActorMethod<[], Array<Enquiry>>,
   'getAllInstructors' : ActorMethod<[], Array<Instructor>>,
   'getAllTestimonials' : ActorMethod<[], Array<Testimonial>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
@@ -82,6 +93,10 @@ export interface _SERVICE {
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'markModuleCompleted' : ActorMethod<[bigint, bigint], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'submitEnquiry' : ActorMethod<
+    [string, string, string, string, string],
+    bigint
+  >,
   'updateCourse' : ActorMethod<
     [
       bigint,

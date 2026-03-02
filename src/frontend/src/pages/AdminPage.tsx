@@ -30,6 +30,7 @@ import {
   AlertTriangle,
   BookOpen,
   Edit2,
+  Inbox,
   Loader2,
   LogIn,
   Plus,
@@ -40,15 +41,17 @@ import {
 import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
-import type { Course, CourseModule, Instructor } from "../backend.d";
+import type { Course, CourseModule, Enquiry, Instructor } from "../backend.d";
 import { sampleCourses, sampleInstructors } from "../data/sampleData";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
   useAllCourses,
+  useAllEnquiries,
   useAllInstructors,
   useCreateCourse,
   useCreateInstructor,
   useDeleteCourse,
+  useDeleteEnquiry,
   useDeleteInstructor,
   useIsAdmin,
   useUpdateCourse,
@@ -130,6 +133,7 @@ export function AdminPage() {
   const { data: isAdmin, isLoading: adminLoading } = useIsAdmin();
   const { data: backendCourses } = useAllCourses();
   const { data: backendInstructors } = useAllInstructors();
+  const { data: enquiries } = useAllEnquiries();
 
   const createCourse = useCreateCourse();
   const updateCourse = useUpdateCourse();
@@ -137,6 +141,7 @@ export function AdminPage() {
   const createInstructor = useCreateInstructor();
   const updateInstructor = useUpdateInstructor();
   const deleteInstructor = useDeleteInstructor();
+  const deleteEnquiry = useDeleteEnquiry();
 
   const courses: Course[] =
     backendCourses && backendCourses.length > 0
@@ -162,7 +167,7 @@ export function AdminPage() {
 
   // Delete confirm
   const [deleteConfirm, setDeleteConfirm] = useState<{
-    type: "course" | "instructor";
+    type: "course" | "instructor" | "enquiry";
     id: bigint;
     title: string;
   } | null>(null);
@@ -340,10 +345,40 @@ export function AdminPage() {
     });
   }
 
+  function handleDeleteEnquiry(id: bigint) {
+    deleteEnquiry.mutate(id, {
+      onSuccess: () => {
+        toast.success("Enquiry deleted");
+        setDeleteConfirm(null);
+      },
+      onError: () => toast.error("Failed to delete enquiry"),
+    });
+  }
+
   const isSavingCourse = createCourse.isPending || updateCourse.isPending;
   const isSavingInstructor =
     createInstructor.isPending || updateInstructor.isPending;
-  const isDeleting = deleteCourse.isPending || deleteInstructor.isPending;
+  const isDeleting =
+    deleteCourse.isPending ||
+    deleteInstructor.isPending ||
+    deleteEnquiry.isPending;
+
+  // Sort enquiries by most recent first (highest submittedAt first)
+  const sortedEnquiries: Enquiry[] = [...(enquiries ?? [])].sort((a, b) =>
+    b.submittedAt > a.submittedAt ? 1 : b.submittedAt < a.submittedAt ? -1 : 0,
+  );
+
+  function formatEnquiryDate(nanoseconds: bigint): string {
+    // Convert nanoseconds to milliseconds for Date constructor
+    const ms = Number(nanoseconds / BigInt(1_000_000));
+    return new Date(ms).toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
 
   return (
     <div className="min-h-screen pt-24 pb-16">
@@ -374,6 +409,10 @@ export function AdminPage() {
             <TabsTrigger value="instructors" className="gap-2">
               <Users className="h-4 w-4" />
               Instructors ({instructors.length})
+            </TabsTrigger>
+            <TabsTrigger value="enquiries" className="gap-2">
+              <Inbox className="h-4 w-4" />
+              Enquiries ({sortedEnquiries.length})
             </TabsTrigger>
           </TabsList>
 
@@ -550,6 +589,89 @@ export function AdminPage() {
                 </TableBody>
               </Table>
             </div>
+          </TabsContent>
+
+          {/* Enquiries Tab */}
+          <TabsContent value="enquiries">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-xl font-bold text-foreground">
+                All Enquiries
+              </h2>
+              <Badge variant="secondary" className="text-xs px-3 py-1">
+                {sortedEnquiries.length} total
+              </Badge>
+            </div>
+
+            {sortedEnquiries.length === 0 ? (
+              <div className="card-glow rounded-xl p-12 text-center">
+                <Inbox className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground text-sm">
+                  No enquiries yet. They'll appear here once students submit the
+                  contact form.
+                </p>
+              </div>
+            ) : (
+              <div className="card-glow rounded-xl overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Course Interested</TableHead>
+                      <TableHead>Message</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedEnquiries.map((enquiry) => (
+                      <TableRow key={enquiry.id.toString()}>
+                        <TableCell className="font-medium whitespace-nowrap">
+                          {enquiry.name}
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground max-w-[160px] truncate">
+                          {enquiry.email}
+                        </TableCell>
+                        <TableCell className="text-sm whitespace-nowrap">
+                          {enquiry.phone}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="secondary"
+                            className="text-xs whitespace-nowrap"
+                          >
+                            {enquiry.courseInterested}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate text-sm text-muted-foreground">
+                          {enquiry.message || "—"}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                          {formatEnquiryDate(enquiry.submittedAt)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() =>
+                              setDeleteConfirm({
+                                type: "enquiry",
+                                id: enquiry.id,
+                                title: `enquiry from ${enquiry.name}`,
+                              })
+                            }
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
@@ -888,7 +1010,9 @@ export function AdminPage() {
                 if (!deleteConfirm) return;
                 if (deleteConfirm.type === "course")
                   handleDeleteCourse(deleteConfirm.id);
-                else handleDeleteInstructor(deleteConfirm.id);
+                else if (deleteConfirm.type === "instructor")
+                  handleDeleteInstructor(deleteConfirm.id);
+                else handleDeleteEnquiry(deleteConfirm.id);
               }}
               className="gap-2"
             >

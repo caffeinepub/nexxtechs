@@ -12,12 +12,30 @@ export interface CourseModule {
     title: string;
     description: string;
 }
+export interface Testimonial {
+    userId: Principal;
+    comment: string;
+    rating: bigint;
+    courseId: bigint;
+}
 export interface Instructor {
     id: bigint;
     bio: string;
     name: string;
     expertise: Array<string>;
     avatarUrl: string;
+}
+export interface Enquiry {
+    id: bigint;
+    name: string;
+    submittedAt: bigint;
+    email: string;
+    message: string;
+    phone: string;
+    courseInterested: string;
+}
+export interface UserProfile {
+    name: string;
 }
 export interface Course {
     id: bigint;
@@ -31,15 +49,6 @@ export interface Course {
     price: number;
     modules: Array<CourseModule>;
 }
-export interface UserProfile {
-    name: string;
-}
-export interface Testimonial {
-    userId: Principal;
-    comment: string;
-    rating: bigint;
-    courseId: bigint;
-}
 export enum UserRole {
     admin = "admin",
     user = "user",
@@ -51,9 +60,11 @@ export interface backendInterface {
     createCourse(title: string, description: string, category: string, instructorId: bigint | null, modules: Array<CourseModule>, thumbnailUrl: string, duration: number, difficulty: string, price: number): Promise<bigint>;
     createInstructor(name: string, bio: string, expertise: Array<string>, avatarUrl: string): Promise<bigint>;
     deleteCourse(courseId: bigint): Promise<void>;
+    deleteEnquiry(id: bigint): Promise<void>;
     deleteInstructor(instructorId: bigint): Promise<void>;
     enrollInCourse(courseId: bigint): Promise<void>;
     getAllCourses(): Promise<Array<Course>>;
+    getAllEnquiries(): Promise<Array<Enquiry>>;
     getAllInstructors(): Promise<Array<Instructor>>;
     getAllTestimonials(): Promise<Array<Testimonial>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -66,6 +77,7 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     markModuleCompleted(courseId: bigint, moduleId: bigint): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    submitEnquiry(name: string, email: string, phone: string, courseInterested: string, message: string): Promise<bigint>;
     updateCourse(courseId: bigint, title: string, description: string, category: string, instructorId: bigint | null, modules: Array<CourseModule>, thumbnailUrl: string, duration: number, difficulty: string, price: number): Promise<void>;
     updateInstructor(instructorId: bigint, name: string, bio: string, expertise: Array<string>, avatarUrl: string): Promise<void>;
 }

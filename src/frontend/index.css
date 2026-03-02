@@ -1,0 +1,200 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── NexXTechs Design System ── */
+
+/* Bricolage Grotesque — Display/Headings */
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("/assets/fonts/BricolageGrotesque[opsz,wdth,wght].woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Outfit — Body */
+@font-face {
+  font-family: "Outfit";
+  src: url("/assets/fonts/Outfit[wght].woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Geist Mono — Code */
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/assets/fonts/GeistMono[wght].woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    /* NexXTechs: Dark navy tech palette — always dark mode */
+    --radius: 0.5rem;
+
+    /* Backgrounds */
+    --background: 0.12 0.02 260;
+    --foreground: 0.96 0.01 260;
+
+    /* Cards */
+    --card: 0.15 0.025 260;
+    --card-foreground: 0.96 0.01 260;
+
+    /* Popover */
+    --popover: 0.18 0.03 260;
+    --popover-foreground: 0.96 0.01 260;
+
+    /* Primary: Electric Cyan */
+    --primary: 0.78 0.18 200;
+    --primary-foreground: 0.08 0.02 260;
+
+    /* Secondary: Deep Navy */
+    --secondary: 0.22 0.04 265;
+    --secondary-foreground: 0.85 0.02 260;
+
+    /* Muted */
+    --muted: 0.2 0.035 265;
+    --muted-foreground: 0.6 0.04 260;
+
+    /* Accent: Electric Purple */
+    --accent: 0.6 0.22 290;
+    --accent-foreground: 0.97 0.01 260;
+
+    /* Destructive */
+    --destructive: 0.6 0.22 25;
+    --destructive-foreground: 0.97 0 0;
+
+    /* Borders and inputs */
+    --border: 0.28 0.05 265;
+    --input: 0.22 0.04 265;
+    --ring: 0.78 0.18 200;
+
+    /* Charts */
+    --chart-1: 0.78 0.18 200;
+    --chart-2: 0.6 0.22 290;
+    --chart-3: 0.72 0.2 160;
+    --chart-4: 0.75 0.18 50;
+    --chart-5: 0.65 0.22 15;
+
+    /* Sidebar */
+    --sidebar: 0.1 0.02 260;
+    --sidebar-foreground: 0.96 0.01 260;
+    --sidebar-primary: 0.78 0.18 200;
+    --sidebar-primary-foreground: 0.08 0.02 260;
+    --sidebar-accent: 0.18 0.03 265;
+    --sidebar-accent-foreground: 0.85 0.02 260;
+    --sidebar-border: 0.25 0.04 265;
+    --sidebar-ring: 0.78 0.18 200;
+
+    /* Custom NexXTechs tokens */
+    --cyan: 0.78 0.18 200;
+    --purple: 0.6 0.22 290;
+    --navy: 0.12 0.02 260;
+    --navy-light: 0.18 0.035 265;
+    --glow-cyan: 0 0 30px oklch(0.78 0.18 200 / 0.4);
+    --glow-purple: 0 0 30px oklch(0.6 0.22 290 / 0.4);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    background-image:
+      radial-gradient(ellipse at 10% 20%, oklch(0.6 0.22 290 / 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, oklch(0.78 0.18 200 / 0.06) 0%, transparent 50%);
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: "Bricolage Grotesque", sans-serif;
+  }
+  .font-body {
+    font-family: "Outfit", sans-serif;
+  }
+  .font-mono {
+    font-family: "Geist Mono", monospace;
+  }
+
+  /* Glow effects */
+  .glow-cyan {
+    box-shadow: var(--glow-cyan);
+  }
+  .glow-purple {
+    box-shadow: var(--glow-purple);
+  }
+  .text-glow-cyan {
+    text-shadow: 0 0 20px oklch(0.78 0.18 200 / 0.6);
+  }
+  .text-glow-purple {
+    text-shadow: 0 0 20px oklch(0.6 0.22 290 / 0.5);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, oklch(0.78 0.18 200), oklch(0.6 0.22 290));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-rev {
+    background: linear-gradient(135deg, oklch(0.6 0.22 290), oklch(0.78 0.18 200));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Card with border glow */
+  .card-glow {
+    background: oklch(0.15 0.025 260);
+    border: 1px solid oklch(0.28 0.05 265);
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .card-glow:hover {
+    border-color: oklch(0.78 0.18 200 / 0.4);
+    box-shadow: 0 0 20px oklch(0.78 0.18 200 / 0.1), inset 0 0 20px oklch(0.78 0.18 200 / 0.03);
+  }
+
+  /* Circuit pattern background */
+  .bg-circuit {
+    background-image:
+      linear-gradient(oklch(0.78 0.18 200 / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0.78 0.18 200 / 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Noise grain overlay */
+  .grain-overlay::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  /* Difficulty badge colors */
+  .badge-beginner {
+    @apply bg-emerald-950 text-emerald-400 border border-emerald-800;
+  }
+  .badge-intermediate {
+    @apply bg-amber-950 text-amber-400 border border-amber-800;
+  }
+  .badge-advanced {
+    @apply bg-red-950 text-red-400 border border-red-800;
+  }
+}

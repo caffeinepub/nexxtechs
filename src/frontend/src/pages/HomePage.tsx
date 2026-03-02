@@ -1,6 +1,5 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -17,8 +16,6 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { SiWhatsapp } from "react-icons/si";
-import { toast } from "sonner";
-import type { Course, Instructor } from "../backend.d";
 import { CourseCard } from "../components/CourseCard";
 import { EnquiryForm } from "../components/EnquiryForm";
 import {
@@ -27,14 +24,6 @@ import {
   sampleInstructors,
   sampleTestimonials,
 } from "../data/sampleData";
-import { useInternetIdentity } from "../hooks/useInternetIdentity";
-import {
-  useAllCourses,
-  useAllInstructors,
-  useAllTestimonials,
-  useEnrollInCourse,
-  useEnrolledCourses,
-} from "../hooks/useQueries";
 
 const containerVariants = {
   hidden: {},
@@ -51,38 +40,12 @@ const itemVariants = {
 };
 
 export function HomePage() {
-  const { data: backendCourses, isLoading: coursesLoading } = useAllCourses();
-  const { data: backendInstructors } = useAllInstructors();
-  const { data: testimonials } = useAllTestimonials();
-  const { data: enrolledIds } = useEnrolledCourses();
-  const { mutate: enrollInCourse, isPending: isEnrolling } =
-    useEnrollInCourse();
-  const { identity, login } = useInternetIdentity();
-
-  const courses: Course[] =
-    backendCourses && backendCourses.length > 0
-      ? backendCourses
-      : sampleCourses;
-  const instructors: Instructor[] =
-    backendInstructors && backendInstructors.length > 0
-      ? backendInstructors
-      : sampleInstructors;
-  const displayTestimonials =
-    testimonials && testimonials.length > 0 ? [] : sampleTestimonials;
+  const courses = sampleCourses;
+  const instructors = sampleInstructors;
+  const displayTestimonials = sampleTestimonials;
 
   const featuredCourses = courses.slice(0, 6);
   const categories = [...new Set(courses.map((c) => c.category))];
-
-  function handleEnroll(courseId: bigint) {
-    if (!identity) {
-      login();
-      return;
-    }
-    enrollInCourse(courseId, {
-      onSuccess: () => toast.success("Successfully enrolled!"),
-      onError: () => toast.error("Enrollment failed. Please try again."),
-    });
-  }
 
   return (
     <div className="min-h-screen">
@@ -273,36 +236,18 @@ export function HomePage() {
             </Link>
           </div>
 
-          {coursesLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {["s1", "s2", "s3", "s4", "s5", "s6"].map((sk) => (
-                <div key={sk} className="card-glow rounded-xl overflow-hidden">
-                  <Skeleton className="aspect-video" />
-                  <div className="p-5 space-y-3">
-                    <Skeleton className="h-5 w-3/4" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-2/3" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredCourses.map((course, index) => (
-                <CourseCard
-                  key={course.id.toString()}
-                  course={course}
-                  isEnrolled={
-                    enrolledIds?.map(String).includes(course.id.toString()) ??
-                    false
-                  }
-                  onEnroll={handleEnroll}
-                  isEnrolling={isEnrolling}
-                  index={index}
-                />
-              ))}
-            </div>
-          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredCourses.map((course, index) => (
+              <CourseCard
+                key={course.id.toString()}
+                course={course}
+                isEnrolled={false}
+                onEnroll={() => {}}
+                isEnrolling={false}
+                index={index}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
@@ -578,16 +523,15 @@ export function HomePage() {
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
-                {!identity && (
+                <Link to="/contact">
                   <Button
                     size="lg"
                     variant="outline"
                     className="gap-2 border-border"
-                    onClick={login}
                   >
-                    Create Free Account
+                    Contact Us
                   </Button>
-                )}
+                </Link>
               </div>
             </div>
           </motion.div>

@@ -1,21 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
-import type { Course } from "../backend.d";
 import { CourseCard } from "../components/CourseCard";
 import { sampleCourses } from "../data/sampleData";
-import { useInternetIdentity } from "../hooks/useInternetIdentity";
-import {
-  useAllCourses,
-  useCourseCategories,
-  useEnrollInCourse,
-  useEnrolledCourses,
-} from "../hooks/useQueries";
 
 const DIFFICULTY_OPTIONS = ["All", "Beginner", "Intermediate", "Advanced"];
 
@@ -24,24 +14,9 @@ export function CoursesPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedDifficulty, setSelectedDifficulty] = useState("All");
 
-  const { data: backendCourses, isLoading } = useAllCourses();
-  const { data: backendCategories } = useCourseCategories();
-  const { data: enrolledIds } = useEnrolledCourses();
-  const { mutate: enrollInCourse, isPending: isEnrolling } =
-    useEnrollInCourse();
-  const { identity, login } = useInternetIdentity();
-
-  const courses: Course[] =
-    backendCourses && backendCourses.length > 0
-      ? backendCourses
-      : sampleCourses;
+  const courses = sampleCourses;
   const sampleCategories = [...new Set(sampleCourses.map((c) => c.category))];
-  const categories = [
-    "All",
-    ...(backendCategories && backendCategories.length > 0
-      ? backendCategories
-      : sampleCategories),
-  ];
+  const categories = ["All", ...sampleCategories];
 
   const filtered = useMemo(() => {
     return courses.filter((course) => {
@@ -61,17 +36,6 @@ export function CoursesPage() {
       return matchesSearch && matchesCategory && matchesDifficulty;
     });
   }, [courses, search, selectedCategory, selectedDifficulty]);
-
-  function handleEnroll(courseId: bigint) {
-    if (!identity) {
-      login();
-      return;
-    }
-    enrollInCourse(courseId, {
-      onSuccess: () => toast.success("Successfully enrolled!"),
-      onError: () => toast.error("Enrollment failed. Please try again."),
-    });
-  }
 
   function clearFilters() {
     setSearch("");
@@ -221,21 +185,7 @@ export function CoursesPage() {
         </p>
 
         {/* Course Grid */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {["s1", "s2", "s3", "s4", "s5", "s6"].map((sk) => (
-              <div key={sk} className="card-glow rounded-xl overflow-hidden">
-                <Skeleton className="aspect-video" />
-                <div className="p-5 space-y-3">
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-2/3" />
-                  <Skeleton className="h-8 w-full mt-4" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
+        {filtered.length === 0 ? (
           <div className="text-center py-24">
             <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
               <Search className="h-8 w-8 text-muted-foreground" />
@@ -256,12 +206,9 @@ export function CoursesPage() {
               <CourseCard
                 key={course.id.toString()}
                 course={course}
-                isEnrolled={
-                  enrolledIds?.map(String).includes(course.id.toString()) ??
-                  false
-                }
-                onEnroll={handleEnroll}
-                isEnrolling={isEnrolling}
+                isEnrolled={false}
+                onEnroll={() => {}}
+                isEnrolling={false}
                 index={index}
               />
             ))}

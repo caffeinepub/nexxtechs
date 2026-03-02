@@ -1,403 +1,103 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type {
-  Course,
-  CourseModule,
-  Enquiry,
-  Instructor,
-  Testimonial,
-  UserProfile,
-} from "../backend.d";
-import { UserRole } from "../backend.d";
-import { useActor } from "./useActor";
+import type { Course, Instructor } from "../backend.d";
+import { sampleCourses, sampleInstructors } from "../data/sampleData";
 
 export function useAllCourses() {
-  const { actor, isFetching } = useActor();
-  return useQuery<Course[]>({
-    queryKey: ["courses"],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getAllCourses();
-    },
-    enabled: !!actor && !isFetching,
-  });
+  return { data: sampleCourses as Course[], isLoading: false };
 }
 
-export function useCourseById(courseId: bigint | undefined) {
-  const { actor, isFetching } = useActor();
-  return useQuery<Course | null>({
-    queryKey: ["course", courseId?.toString()],
-    queryFn: async () => {
-      if (!actor || courseId === undefined) return null;
-      return actor.getCourseById(courseId);
-    },
-    enabled: !!actor && !isFetching && courseId !== undefined,
-  });
+export function useCourseById(id: bigint | undefined) {
+  return {
+    data:
+      id !== undefined
+        ? (sampleCourses.find((c) => c.id === id) ?? null)
+        : null,
+    isLoading: false,
+  };
 }
 
 export function useCourseCategories() {
-  const { actor, isFetching } = useActor();
-  return useQuery<string[]>({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getCourseCategories();
-    },
-    enabled: !!actor && !isFetching,
-  });
+  return {
+    data: [...new Set(sampleCourses.map((c) => c.category))],
+    isLoading: false,
+  };
 }
 
 export function useAllInstructors() {
-  const { actor, isFetching } = useActor();
-  return useQuery<Instructor[]>({
-    queryKey: ["instructors"],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getAllInstructors();
-    },
-    enabled: !!actor && !isFetching,
-  });
+  return { data: sampleInstructors as Instructor[], isLoading: false };
 }
 
 export function useAllTestimonials() {
-  const { actor, isFetching } = useActor();
-  return useQuery<Testimonial[]>({
-    queryKey: ["testimonials"],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getAllTestimonials();
-    },
-    enabled: !!actor && !isFetching,
-  });
+  return { data: [], isLoading: false };
 }
 
 export function useEnrolledCourses() {
-  const { actor, isFetching } = useActor();
-  return useQuery<bigint[]>({
-    queryKey: ["enrolled"],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getEnrolledCourses();
-    },
-    enabled: !!actor && !isFetching,
-  });
+  return { data: [] as bigint[], isLoading: false };
 }
 
-export function useCourseProgress(courseId: bigint | undefined) {
-  const { actor, isFetching } = useActor();
-  return useQuery<number>({
-    queryKey: ["progress", courseId?.toString()],
-    queryFn: async () => {
-      if (!actor || courseId === undefined) return 0;
-      return actor.getCourseProgress(courseId);
-    },
-    enabled: !!actor && !isFetching && courseId !== undefined,
-  });
+export function useCourseProgress(_courseId: bigint | undefined) {
+  return { data: 0, isLoading: false };
 }
 
 export function useIsAdmin() {
-  const { actor, isFetching } = useActor();
-  return useQuery<boolean>({
-    queryKey: ["isAdmin"],
-    queryFn: async () => {
-      if (!actor) return false;
-      return actor.isCallerAdmin();
-    },
-    enabled: !!actor && !isFetching,
-  });
+  return { data: false, isLoading: false };
 }
 
 export function useUserRole() {
-  const { actor, isFetching } = useActor();
-  return useQuery<UserRole>({
-    queryKey: ["userRole"],
-    queryFn: async () => {
-      if (!actor) return UserRole.guest;
-      return actor.getCallerUserRole();
-    },
-    enabled: !!actor && !isFetching,
-  });
+  return { data: "guest" as const, isLoading: false };
 }
 
 export function useUserProfile() {
-  const { actor, isFetching } = useActor();
-  return useQuery<UserProfile | null>({
-    queryKey: ["userProfile"],
-    queryFn: async () => {
-      if (!actor) return null;
-      return actor.getCallerUserProfile();
-    },
-    enabled: !!actor && !isFetching,
-  });
+  return { data: null, isLoading: false };
 }
 
-// Mutations
 export function useEnrollInCourse() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (courseId: bigint) => {
-      if (!actor) throw new Error("Not authenticated");
-      return actor.enrollInCourse(courseId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["enrolled"] });
-    },
-  });
+  return { mutate: () => {}, isPending: false };
 }
 
 export function useMarkModuleCompleted() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({
-      courseId,
-      moduleId,
-    }: { courseId: bigint; moduleId: bigint }) => {
-      if (!actor) throw new Error("Not authenticated");
-      return actor.markModuleCompleted(courseId, moduleId);
-    },
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["progress", variables.courseId.toString()],
-      });
-    },
-  });
+  return { mutate: () => {}, isPending: false };
 }
 
 export function useAddTestimonial() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({
-      courseId,
-      rating,
-      comment,
-    }: {
-      courseId: bigint;
-      rating: bigint;
-      comment: string;
-    }) => {
-      if (!actor) throw new Error("Not authenticated");
-      return actor.addTestimonial(courseId, rating, comment);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["testimonials"] });
-    },
-  });
+  return { mutate: () => {}, isPending: false };
 }
 
 export function useSaveUserProfile() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (profile: UserProfile) => {
-      if (!actor) throw new Error("Not authenticated");
-      return actor.saveCallerUserProfile(profile);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
-    },
-  });
+  return { mutate: () => {}, isPending: false };
 }
 
 export function useCreateCourse() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (params: {
-      title: string;
-      description: string;
-      category: string;
-      instructorId: bigint | null;
-      modules: CourseModule[];
-      thumbnailUrl: string;
-      duration: number;
-      difficulty: string;
-      price: number;
-    }) => {
-      if (!actor) throw new Error("Not authenticated");
-      return actor.createCourse(
-        params.title,
-        params.description,
-        params.category,
-        params.instructorId,
-        params.modules,
-        params.thumbnailUrl,
-        params.duration,
-        params.difficulty,
-        params.price,
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["courses"] });
-    },
-  });
+  return { mutate: () => {}, isPending: false };
 }
 
 export function useUpdateCourse() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (params: {
-      courseId: bigint;
-      title: string;
-      description: string;
-      category: string;
-      instructorId: bigint | null;
-      modules: CourseModule[];
-      thumbnailUrl: string;
-      duration: number;
-      difficulty: string;
-      price: number;
-    }) => {
-      if (!actor) throw new Error("Not authenticated");
-      return actor.updateCourse(
-        params.courseId,
-        params.title,
-        params.description,
-        params.category,
-        params.instructorId,
-        params.modules,
-        params.thumbnailUrl,
-        params.duration,
-        params.difficulty,
-        params.price,
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["courses"] });
-    },
-  });
+  return { mutate: () => {}, isPending: false };
 }
 
 export function useDeleteCourse() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (courseId: bigint) => {
-      if (!actor) throw new Error("Not authenticated");
-      return actor.deleteCourse(courseId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["courses"] });
-    },
-  });
+  return { mutate: () => {}, isPending: false };
 }
 
 export function useCreateInstructor() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (params: {
-      name: string;
-      bio: string;
-      expertise: string[];
-      avatarUrl: string;
-    }) => {
-      if (!actor) throw new Error("Not authenticated");
-      return actor.createInstructor(
-        params.name,
-        params.bio,
-        params.expertise,
-        params.avatarUrl,
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["instructors"] });
-    },
-  });
+  return { mutate: () => {}, isPending: false };
 }
 
 export function useUpdateInstructor() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (params: {
-      instructorId: bigint;
-      name: string;
-      bio: string;
-      expertise: string[];
-      avatarUrl: string;
-    }) => {
-      if (!actor) throw new Error("Not authenticated");
-      return actor.updateInstructor(
-        params.instructorId,
-        params.name,
-        params.bio,
-        params.expertise,
-        params.avatarUrl,
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["instructors"] });
-    },
-  });
+  return { mutate: () => {}, isPending: false };
 }
 
 export function useDeleteInstructor() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (instructorId: bigint) => {
-      if (!actor) throw new Error("Not authenticated");
-      return actor.deleteInstructor(instructorId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["instructors"] });
-    },
-  });
+  return { mutate: () => {}, isPending: false };
 }
 
-// ── Enquiry hooks ──────────────────────────────────────────────────────────
-
 export function useAllEnquiries() {
-  const { actor, isFetching } = useActor();
-  return useQuery<Enquiry[]>({
-    queryKey: ["enquiries"],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getAllEnquiries();
-    },
-    enabled: !!actor && !isFetching,
-  });
+  return { data: [], isLoading: false };
 }
 
 export function useSubmitEnquiry() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (params: {
-      name: string;
-      email: string;
-      phone: string;
-      courseInterested: string;
-      message: string;
-    }) => {
-      if (!actor) throw new Error("Actor not available");
-      return actor.submitEnquiry(
-        params.name,
-        params.email,
-        params.phone,
-        params.courseInterested,
-        params.message,
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["enquiries"] });
-    },
-  });
+  return { mutate: () => {}, isPending: false, isSuccess: false };
 }
 
 export function useDeleteEnquiry() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: bigint) => {
-      if (!actor) throw new Error("Not authenticated");
-      return actor.deleteEnquiry(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["enquiries"] });
-    },
-  });
+  return { mutate: () => {}, isPending: false };
 }

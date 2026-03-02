@@ -9,10 +9,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, Loader2, Send } from "lucide-react";
+import { CheckCircle2, Send } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useAllCourses, useSubmitEnquiry } from "../hooks/useQueries";
 
 interface FormData {
   name: string;
@@ -30,6 +29,20 @@ const emptyForm: FormData = {
   message: "",
 };
 
+const courseOptions = [
+  "Cloud Computing",
+  "DevOps Engineering",
+  "Data Analytics",
+  "Data Science",
+  "Machine Learning",
+  "Artificial Intelligence",
+  "Web Development",
+  "Digital Marketing",
+  "Graphic Designing",
+  "Cyber Security",
+  "Other",
+];
+
 interface EnquiryFormProps {
   /** Optional compact variant for inline/home-page usage */
   compact?: boolean;
@@ -38,10 +51,6 @@ interface EnquiryFormProps {
 export function EnquiryForm({ compact = false }: EnquiryFormProps) {
   const [form, setForm] = useState<FormData>(emptyForm);
   const [submitted, setSubmitted] = useState(false);
-  const { data: courses } = useAllCourses();
-  const submitEnquiry = useSubmitEnquiry();
-
-  const courseOptions = [...(courses ?? []).map((c) => c.title), "Other"];
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -56,17 +65,10 @@ export function EnquiryForm({ compact = false }: EnquiryFormProps) {
       return;
     }
 
-    submitEnquiry.mutate(form, {
-      onSuccess: () => {
-        toast.success("Enquiry submitted! We'll contact you shortly.");
-        setForm(emptyForm);
-        setSubmitted(true);
-        setTimeout(() => setSubmitted(false), 5000);
-      },
-      onError: () => {
-        toast.error("Failed to submit enquiry. Please try again.");
-      },
-    });
+    toast.success("Enquiry submitted! We'll contact you shortly.");
+    setForm(emptyForm);
+    setSubmitted(true);
+    setTimeout(() => setSubmitted(false), 5000);
   }
 
   if (submitted) {
@@ -211,16 +213,11 @@ export function EnquiryForm({ compact = false }: EnquiryFormProps) {
 
       <Button
         type="submit"
-        disabled={submitEnquiry.isPending}
         className="gap-2 bg-primary text-primary-foreground hover:opacity-90 glow-cyan w-full sm:w-auto"
         size={compact ? "default" : "lg"}
       >
-        {submitEnquiry.isPending ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Send className="h-4 w-4" />
-        )}
-        {submitEnquiry.isPending ? "Sending..." : "Send Enquiry"}
+        <Send className="h-4 w-4" />
+        Send Enquiry
       </Button>
     </form>
   );

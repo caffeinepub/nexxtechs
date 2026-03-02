@@ -1,10 +1,8 @@
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, Star, Users } from "lucide-react";
 import { motion } from "motion/react";
-import type { Course, Instructor } from "../backend.d";
+import type { Instructor } from "../backend.d";
 import { sampleCourses, sampleInstructors } from "../data/sampleData";
-import { useAllCourses, useAllInstructors } from "../hooks/useQueries";
 
 const containerVariants = {
   hidden: {},
@@ -21,17 +19,8 @@ const itemVariants = {
 };
 
 export function InstructorsPage() {
-  const { data: backendInstructors, isLoading } = useAllInstructors();
-  const { data: backendCourses } = useAllCourses();
-
-  const instructors: Instructor[] =
-    backendInstructors && backendInstructors.length > 0
-      ? backendInstructors
-      : sampleInstructors;
-  const courses: Course[] =
-    backendCourses && backendCourses.length > 0
-      ? backendCourses
-      : sampleCourses;
+  const instructors = sampleInstructors;
+  const courses = sampleCourses;
 
   function getInstructorCourseCount(instructorId: bigint): number {
     return courses.filter(
@@ -100,96 +89,70 @@ export function InstructorsPage() {
         </motion.div>
 
         {/* Instructors grid */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {["is1", "is2", "is3"].map((sk) => (
-              <div key={sk} className="card-glow rounded-xl p-6 space-y-4">
-                <Skeleton className="w-20 h-20 rounded-full mx-auto" />
-                <Skeleton className="h-5 w-3/4 mx-auto" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-5/6" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {instructors.map((instructor) => {
-              const courseCount = getInstructorCourseCount(instructor.id);
-              const avatar = getAvatarUrl(instructor);
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {instructors.map((instructor) => {
+            const courseCount = getInstructorCourseCount(instructor.id);
+            const avatar = getAvatarUrl(instructor);
 
-              return (
-                <motion.div
-                  key={instructor.id.toString()}
-                  variants={itemVariants}
-                  className="card-glow rounded-xl p-8 text-center group"
-                >
-                  {/* Avatar */}
-                  <div className="relative w-24 h-24 mx-auto mb-5">
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-md group-hover:blur-lg transition-all" />
-                    <img
-                      src={avatar}
-                      alt={instructor.name}
-                      className="relative w-24 h-24 rounded-full object-cover border-2 border-border"
-                    />
-                  </div>
+            return (
+              <motion.div
+                key={instructor.id.toString()}
+                variants={itemVariants}
+                className="card-glow rounded-xl p-8 text-center group"
+              >
+                {/* Avatar */}
+                <div className="relative w-24 h-24 mx-auto mb-5">
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-md group-hover:blur-lg transition-all" />
+                  <img
+                    src={avatar}
+                    alt={instructor.name}
+                    className="relative w-24 h-24 rounded-full object-cover border-2 border-border"
+                  />
+                </div>
 
-                  {/* Name & Role */}
-                  <h3 className="font-display text-xl font-bold text-foreground mb-1">
-                    {instructor.name}
-                  </h3>
-                  <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground mb-4">
-                    <span className="flex items-center gap-1">
-                      <BookOpen className="h-3.5 w-3.5" />
-                      {courseCount} course{courseCount !== 1 ? "s" : ""}
-                    </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                      4.9
-                    </span>
-                  </div>
+                {/* Name & Role */}
+                <h3 className="font-display text-xl font-bold text-foreground mb-1">
+                  {instructor.name}
+                </h3>
+                <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground mb-4">
+                  <span className="flex items-center gap-1">
+                    <BookOpen className="h-3.5 w-3.5" />
+                    {courseCount} course{courseCount !== 1 ? "s" : ""}
+                  </span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">
+                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                    4.9
+                  </span>
+                </div>
 
-                  {/* Bio */}
-                  <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-5 text-left">
-                    {instructor.bio}
-                  </p>
+                {/* Bio */}
+                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-5 text-left">
+                  {instructor.bio}
+                </p>
 
-                  {/* Expertise tags */}
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {instructor.expertise.slice(0, 4).map((exp) => (
-                      <Badge key={exp} variant="secondary" className="text-xs">
-                        {exp}
-                      </Badge>
-                    ))}
-                    {instructor.expertise.length > 4 && (
-                      <Badge variant="secondary" className="text-xs">
-                        +{instructor.expertise.length - 4}
-                      </Badge>
-                    )}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        )}
-
-        {/* Empty state */}
-        {!isLoading && instructors.length === 0 && (
-          <div className="text-center py-20">
-            <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="font-display text-xl font-bold text-foreground mb-2">
-              No instructors yet
-            </h3>
-            <p className="text-muted-foreground">
-              Instructors will appear here soon.
-            </p>
-          </div>
-        )}
+                {/* Expertise tags */}
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {instructor.expertise.slice(0, 4).map((exp) => (
+                    <Badge key={exp} variant="secondary" className="text-xs">
+                      {exp}
+                    </Badge>
+                  ))}
+                  {instructor.expertise.length > 4 && (
+                    <Badge variant="secondary" className="text-xs">
+                      +{instructor.expertise.length - 4}
+                    </Badge>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
       </div>
     </div>
   );
